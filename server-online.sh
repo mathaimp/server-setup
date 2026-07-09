@@ -31,6 +31,9 @@ done
 printf '\n%s%s▌ server setup%s\n' "$C_BOLD" "$C_MAGENTA" "$C_RESET"
 printf '%s─────────────────────%s\n\n' "$C_MAGENTA" "$C_RESET"
 
+# Base URL for dotfiles (this script is meant to be run via `curl ... | sh`).
+REMOTE_BASE="https://raw.githubusercontent.com/mathaimp/server-setup/main"
+
 # Pick a downloader based on what is available.
 download() {
     if command -v curl >/dev/null 2>&1; then
@@ -94,11 +97,11 @@ fi
 # ── Dotfiles ──────────────────────────────────────────────────────────────
 section "Dotfiles"
 if [ ! -e "$HOME/.zshrc" ]; then
-    if cp ./.zshrc "$HOME/.zshrc"; then ok "installed ~/.zshrc"; else warn "failed to copy .zshrc"; fi
+    if download "$HOME/.zshrc" "$REMOTE_BASE/.zshrc"; then ok "downloaded ~/.zshrc"; else warn "failed to download .zshrc"; fi
 else
     skip "~/.zshrc already present"
 fi
-if cp ./.p10k.zsh "$HOME/.p10k.zsh"; then ok "installed ~/.p10k.zsh"; else warn "failed to copy .p10k.zsh"; fi
+if download "$HOME/.p10k.zsh" "$REMOTE_BASE/.p10k.zsh"; then ok "downloaded ~/.p10k.zsh"; else warn "failed to download .p10k.zsh"; fi
 
 # ── Neovim (fatal if it can't be installed) ───────────────────────────────
 if [ "$SKIP_NVIM" -eq 0 ]; then
@@ -280,7 +283,7 @@ else
 fi
 
 mkdir -p "$HOME/.config/tmux"
-if cp ./tmux.conf "$HOME/.config/tmux/tmux.conf"; then ok "installed tmux.conf"; else warn "failed to copy tmux.conf"; fi
+if download "$HOME/.config/tmux/tmux.conf" "$REMOTE_BASE/tmux.conf"; then ok "downloaded tmux.conf"; else warn "failed to download tmux.conf"; fi
 
 if [ ! -e "$HOME/.tmux.conf" ]; then
     if ln -s "$HOME/.config/tmux/tmux.conf" "$HOME/.tmux.conf"; then ok "linked ~/.tmux.conf"; else warn "failed to symlink ~/.tmux.conf"; fi
