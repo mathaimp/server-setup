@@ -107,7 +107,7 @@ if [ "$SKIP_NVIM" -eq 0 ]; then
 
     INSTALL_DIR="$HOME/.local/nvim"
     ARCHIVE="nvim-linux-x86_64.tar.gz"
-    URL="https://github.com/neovim/neovim/releases/latest/download/${ARCHIVE}"
+    URL="https://github.com/neovim/neovim-releases/releases/latest/download/${ARCHIVE}"
 
     if ! download "$ARCHIVE" "$URL"; then
         die "failed to download Neovim"
