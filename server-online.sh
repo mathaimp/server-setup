@@ -242,7 +242,7 @@ pixi_global_install_missing \
     ruff \
     lua-language-server \
     stylua \
-    imagemagick:magick
+    imagemagick
 
 info "other utilities"
 pixi_global_install_missing \
