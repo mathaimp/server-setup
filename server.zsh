@@ -1,3 +1,6 @@
+# Repo-managed zsh additions, installed to ~/.config/zsh/server.zsh and sourced from ~/.zshrc.
+# Overwritten by server.sh / server-online.sh (including --update): do not edit on the server.
+
 # Report long-running commands to tmux (@state: running | done | error).
 # Commands under $_tmux_state_min seconds never show anything.
 if [[ -n $TMUX ]]; then

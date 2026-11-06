@@ -34,6 +34,20 @@ sh server.sh            # add --skip-nvim to skip Neovim
 > checked-out repo. Use the online version for `curl | sh`; use the local
 > version when you've cloned the repo.
 
+### Updating an existing machine
+
+Re-run with `--update` to refresh only the dotfiles and helpers (`tmux.conf`,
+`tmux-state`, `tmux-git`, `~/.config/zsh/server.zsh`, `.p10k.zsh`) and update the
+tmux plugins. It skips the tool, Neovim and shell installs, and reloads any running tmux.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mathaimp/server-setup/main/server-online.sh | sh -s -- --update
+# or, from a clone:  git pull && sh server.sh --update
+```
+
+`~/.zshrc` is only created if missing; on an existing one the script appends a single
+line that sources `~/.config/zsh/server.zsh` (which is always overwritten).
+
 ## Prerequisites
 
 These must already be present (the script can't install them and will abort if

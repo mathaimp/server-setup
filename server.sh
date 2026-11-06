@@ -20,9 +20,11 @@ warn()    { printf '  %s!%s %s\n'     "$C_YELLOW" "$C_RESET" "$*" >&2; }
 die()     { printf '  %s✗%s %s\n'     "$C_RED"    "$C_RESET" "$*" >&2; exit 1; }
 
 SKIP_NVIM=0
+UPDATE=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --skip-nvim) SKIP_NVIM=1 ;;
+        --update) UPDATE=1 ;;
         *) die "unknown option: $1" ;;
     esac
     shift
@@ -67,6 +69,37 @@ pixi_global_install_missing() {
     fi
 }
 
+# Get a repo file: copy from the checkout.
+fetch() { cp "./$1" "$2"; }
+
+# ── Dotfile installers (shared by a full run and --update) ────────────────
+install_zsh_dotfiles() {
+    mkdir -p "$HOME/.config/zsh"
+    if fetch server.zsh "$HOME/.config/zsh/server.zsh"; then ok "installed ~/.config/zsh/server.zsh"; else warn "failed to install server.zsh"; fi
+    if [ ! -e "$HOME/.zshrc" ]; then
+        if fetch .zshrc "$HOME/.zshrc"; then ok "installed ~/.zshrc"; else warn "failed to install .zshrc"; fi
+    elif ! grep -qF 'zsh/server.zsh' "$HOME/.zshrc"; then
+        printf '\n# repo-managed additions (refreshed by server.sh --update)\n[[ -f ~/.config/zsh/server.zsh ]] && source ~/.config/zsh/server.zsh\n' >> "$HOME/.zshrc" \
+            && ok "added server.zsh hook to ~/.zshrc" || warn "failed to update ~/.zshrc"
+    else
+        skip "~/.zshrc already present"
+    fi
+    if fetch .p10k.zsh "$HOME/.p10k.zsh"; then ok "installed ~/.p10k.zsh"; else warn "failed to install .p10k.zsh"; fi
+}
+
+install_tmux_dotfiles() {
+    mkdir -p "$HOME/.config/tmux" "$HOME/.local/bin"
+    if fetch tmux.conf "$HOME/.config/tmux/tmux.conf"; then ok "installed tmux.conf"; else warn "failed to install tmux.conf"; fi
+    for f in tmux-state tmux-git; do
+        if fetch "$f" "$HOME/.local/bin/$f" && chmod +x "$HOME/.local/bin/$f"; then ok "installed $f"; else warn "failed to install $f"; fi
+    done
+    if [ ! -e "$HOME/.tmux.conf" ]; then
+        if ln -s "$HOME/.config/tmux/tmux.conf" "$HOME/.tmux.conf"; then ok "linked ~/.tmux.conf"; else warn "failed to symlink ~/.tmux.conf"; fi
+    else
+        skip "~/.tmux.conf already present"
+    fi
+}
+
 # ── Prerequisites (fatal) ─────────────────────────────────────────────────
 section "Prerequisites"
 for cmd in zsh git; do
@@ -76,6 +109,21 @@ if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
     die "neither curl nor wget is installed — install one and rerun"
 fi
 ok "zsh, git, and a downloader are available"
+
+# ── --update: refresh dotfiles and helpers only ───────────────────────────
+if [ "$UPDATE" -eq 1 ]; then
+    section "Update"
+    install_zsh_dotfiles
+    install_tmux_dotfiles
+    if [ -x "$HOME/.tmux/plugins/tpm/bin/update_plugins" ]; then
+        "$HOME/.tmux/plugins/tpm/bin/update_plugins" all >/dev/null 2>&1 && ok "updated tmux plugins" || warn "tmux plugin update reported errors"
+    fi
+    if command -v tmux >/dev/null 2>&1 && tmux has-session 2>/dev/null; then
+        tmux source-file "$HOME/.config/tmux/tmux.conf" && ok "reloaded running tmux" || warn "failed to reload running tmux"
+    fi
+    printf '\n%s%s✓ Update complete.%s\n' "$C_BOLD" "$C_GREEN" "$C_RESET"
+    exit 0
+fi
 
 # ── Default shell (fatal if it can't be changed) ──────────────────────────
 section "Default shell"
@@ -93,12 +141,7 @@ fi
 
 # ── Dotfiles ──────────────────────────────────────────────────────────────
 section "Dotfiles"
-if [ ! -e "$HOME/.zshrc" ]; then
-    if cp ./.zshrc "$HOME/.zshrc"; then ok "installed ~/.zshrc"; else warn "failed to copy .zshrc"; fi
-else
-    skip "~/.zshrc already present"
-fi
-if cp ./.p10k.zsh "$HOME/.p10k.zsh"; then ok "installed ~/.p10k.zsh"; else warn "failed to copy .p10k.zsh"; fi
+install_zsh_dotfiles
 
 # ── Neovim (fatal if it can't be installed) ───────────────────────────────
 if [ "$SKIP_NVIM" -eq 0 ]; then
@@ -279,20 +322,7 @@ else
     skip "tpm already cloned"
 fi
 
-mkdir -p "$HOME/.config/tmux"
-if cp ./tmux.conf "$HOME/.config/tmux/tmux.conf"; then ok "installed tmux.conf"; else warn "failed to copy tmux.conf"; fi
-
-mkdir -p "$HOME/.local/bin"
-for f in tmux-state tmux-git; do
-    if cp "./$f" "$HOME/.local/bin/$f" && chmod +x "$HOME/.local/bin/$f"; then ok "installed $f"; else warn "failed to copy $f"; fi
-done
-if cp ./tmux-state.zsh "$HOME/.config/tmux/tmux-state.zsh"; then ok "installed tmux-state.zsh"; else warn "failed to copy tmux-state.zsh"; fi
-
-if [ ! -e "$HOME/.tmux.conf" ]; then
-    if ln -s "$HOME/.config/tmux/tmux.conf" "$HOME/.tmux.conf"; then ok "linked ~/.tmux.conf"; else warn "failed to symlink ~/.tmux.conf"; fi
-else
-    skip "~/.tmux.conf already present"
-fi
+install_tmux_dotfiles
 
 info "installing tmux plugins"
 if [ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then

@@ -101,3 +101,6 @@ source <(fzf --zsh)
 
 # report long-running commands to tmux (status-bar dots)
 [[ -f ~/.config/tmux/tmux-state.zsh ]] && source ~/.config/tmux/tmux-state.zsh
+
+# repo-managed additions (refreshed by server.sh --update)
+[[ -f ~/.config/zsh/server.zsh ]] && source ~/.config/zsh/server.zsh
