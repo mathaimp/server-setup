@@ -282,6 +282,12 @@ fi
 mkdir -p "$HOME/.config/tmux"
 if cp ./tmux.conf "$HOME/.config/tmux/tmux.conf"; then ok "installed tmux.conf"; else warn "failed to copy tmux.conf"; fi
 
+mkdir -p "$HOME/.local/bin"
+for f in tmux-state tmux-git; do
+    if cp "./$f" "$HOME/.local/bin/$f" && chmod +x "$HOME/.local/bin/$f"; then ok "installed $f"; else warn "failed to copy $f"; fi
+done
+if cp ./tmux-state.zsh "$HOME/.config/tmux/tmux-state.zsh"; then ok "installed tmux-state.zsh"; else warn "failed to copy tmux-state.zsh"; fi
+
 if [ ! -e "$HOME/.tmux.conf" ]; then
     if ln -s "$HOME/.config/tmux/tmux.conf" "$HOME/.tmux.conf"; then ok "linked ~/.tmux.conf"; else warn "failed to symlink ~/.tmux.conf"; fi
 else

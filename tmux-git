@@ -1,0 +1,29 @@
+#!/bin/sh
+# tmux-git <dir>: git status in the powerlevel10k format (empty outside a repo).
+out=$(git -C "$1" status --porcelain=v2 --branch --show-stash 2>/dev/null) || exit 0
+printf '%s\n' "$out" | awk '
+  /^# branch.oid/ {oid=substr($3,1,8)}
+  /^# branch.head/ {b=$3}
+  /^# branch.upstream/ {up=$3; sub(/^[^\/]*\//,"",up)}
+  /^# branch.ab/ {a=substr($3,2); d=substr($4,2)}
+  /^# stash/ {st=$3}
+  $1=="1" || $1=="2" { if (substr($2,1,1)!=".") s++; if (substr($2,2,1)!=".") m++ }
+  $1=="u" {c++}
+  $1=="?" {u++}
+  END {
+    G="#[fg=green]"; Y="#[fg=yellow]"; B="#[fg=blue]"; R="#[fg=red]"
+    if (b=="(detached)") r="#[default]@" G oid
+    else {
+      if (length(b)>32) b=substr(b,1,12) "…" substr(b,length(b)-11)
+      r=G b
+      if (up!="" && up!=b) r=r "#[default]:" G up
+    }
+    if (d>0) r=r " " G "⇣" d
+    if (a>0) r=r (d>0 ? "" : " ") G "⇡" a
+    if (st>0) r=r " " G "*" st
+    if (c>0) r=r " " R "~" c
+    if (s>0) r=r " " Y "+" s
+    if (m>0) r=r " " Y "!" m
+    if (u>0) r=r " " B "?" u
+    printf "#[fg=brightblack] | %s", r
+  }'

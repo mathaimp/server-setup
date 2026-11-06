@@ -1,0 +1,20 @@
+#!/bin/sh
+# tmux-state <running|done|error|waiting|""> [ping]: set the window's @state shown in the status bar.
+[ -n "$TMUX_PANE" ] || exit 0
+state="$1"
+case "$state" in
+  done|error)
+    seen=$(tmux display -p -t "$TMUX_PANE" '#{&&:#{window_active},#{session_attached}}')
+    [ "$seen" = 1 ] && state=""
+    ;;
+esac
+if [ -n "$state" ]; then
+  tmux set-option -wq -t "$TMUX_PANE" @state "$state"
+else
+  tmux set-option -wuq -t "$TMUX_PANE" @state
+fi
+# "ping": ring the terminal bell (Ghostty plays a soft sound, works over ssh)
+if [ "$2" = ping ]; then
+  tty=$(tmux display -p -t "$TMUX_PANE" '#{pane_tty}')
+  printf '\a' > "$tty"
+fi

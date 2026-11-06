@@ -285,6 +285,12 @@ fi
 mkdir -p "$HOME/.config/tmux"
 if download "$HOME/.config/tmux/tmux.conf" "$REMOTE_BASE/tmux.conf"; then ok "downloaded tmux.conf"; else warn "failed to download tmux.conf"; fi
 
+mkdir -p "$HOME/.local/bin"
+for f in tmux-state tmux-git; do
+    if download "$HOME/.local/bin/$f" "$REMOTE_BASE/$f" && chmod +x "$HOME/.local/bin/$f"; then ok "downloaded $f"; else warn "failed to download $f"; fi
+done
+if download "$HOME/.config/tmux/tmux-state.zsh" "$REMOTE_BASE/tmux-state.zsh"; then ok "downloaded tmux-state.zsh"; else warn "failed to download tmux-state.zsh"; fi
+
 if [ ! -e "$HOME/.tmux.conf" ]; then
     if ln -s "$HOME/.config/tmux/tmux.conf" "$HOME/.tmux.conf"; then ok "linked ~/.tmux.conf"; else warn "failed to symlink ~/.tmux.conf"; fi
 else
