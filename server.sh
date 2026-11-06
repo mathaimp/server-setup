@@ -69,7 +69,6 @@ pixi_global_install_missing() {
     fi
 }
 
-# Get a repo file: copy from the checkout.
 fetch() { cp "./$1" "$2"; }
 
 # ── Dotfile installers (shared by a full run and --update) ────────────────

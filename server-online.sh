@@ -72,7 +72,6 @@ pixi_global_install_missing() {
     fi
 }
 
-# Get a repo file: download from GitHub.
 fetch() { download "$2" "$REMOTE_BASE/$1"; }
 
 # ── Dotfile installers (shared by a full run and --update) ────────────────

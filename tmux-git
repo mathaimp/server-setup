@@ -1,5 +1,4 @@
 #!/bin/sh
-# tmux-git <dir>: git status in the powerlevel10k format (empty outside a repo).
 out=$(git -C "$1" status --porcelain=v2 --branch --show-stash 2>/dev/null) || exit 0
 printf '%s\n' "$out" | awk '
   /^# branch.oid/ {oid=substr($3,1,8)}
