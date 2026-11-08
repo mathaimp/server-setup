@@ -148,7 +148,13 @@ if [ "$SKIP_NVIM" -eq 0 ]; then
     info "downloading latest Neovim..."
 
     INSTALL_DIR="$HOME/.local/nvim"
-    ARCHIVE="nvim-linux-x86_64.tar.gz"
+    case "$(uname -m)" in
+        x86_64|amd64)  NVIM_ARCH="x86_64" ;;
+        aarch64|arm64) NVIM_ARCH="arm64" ;;
+        *) die "unsupported architecture for Neovim: $(uname -m)" ;;
+    esac
+    NVIM_DIR="nvim-linux-${NVIM_ARCH}"
+    ARCHIVE="${NVIM_DIR}.tar.gz"
     URL="https://github.com/neovim/neovim-releases/releases/latest/download/${ARCHIVE}"
 
     if ! download "$ARCHIVE" "$URL"; then
@@ -162,7 +168,7 @@ if [ "$SKIP_NVIM" -eq 0 ]; then
         rm -f "$ARCHIVE"
         die "failed to extract Neovim archive"
     fi
-    mv nvim-linux-x86_64 "$INSTALL_DIR"
+    mv "$NVIM_DIR" "$INSTALL_DIR"
     rm "$ARCHIVE"
 
     export PATH="$INSTALL_DIR/bin:$PATH"

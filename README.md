@@ -67,7 +67,7 @@ installed by the script and only warns on failure.
 | --- | --- |
 | **Shell** | `chsh` to zsh; installs `~/.zshrc` and `~/.p10k.zsh`. |
 | **zsh config** | [zinit](https://github.com/zdharma-continuum/zinit) + [Powerlevel10k](https://github.com/romkatv/powerlevel10k), syntax-highlighting, autosuggestions, completions, and fzf-tab. Aliases (`ls`→eza, `cat`→bat, etc.), large deduped history, vi-style key bindings. |
-| **Neovim** | Latest Linux x86_64 build extracted to `~/.local/nvim`; config cloned from [mathaimp/nvim](https://github.com/mathaimp/nvim) into `~/.config/nvim`. |
+| **Neovim** | Latest Linux build (x86_64 or arm64, auto-detected) extracted to `~/.local/nvim`; config cloned from [mathaimp/nvim](https://github.com/mathaimp/nvim) into `~/.config/nvim`. |
 | **Pixi** | Installed to `~/.pixi` and used to provide CLI tools. |
 | **uv** | Installed to `~/.local/bin`; used to install Yazi. |
 | **CLI tools** | `fd`, `ripgrep`, `fzf`, `tree-sitter`, `ty`, `ruff`, `lua-language-server`, `stylua`, `eza`, `bat`, `zoxide`, `lazygit`, `tmux` — only the ones whose binary is missing. |
